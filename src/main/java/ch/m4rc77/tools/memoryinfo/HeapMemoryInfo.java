@@ -5,18 +5,18 @@ import lombok.Data;
 @Data
 class HeapMemoryInfo {
 
-    private double heapUsedMemoryMB;
+    private double heapUsedMemoryMB = -1;
 
-    private double heapFreeMemoryNowMB;
+    private double heapFreeMemoryNowMB = -1;
 
-    private double heapFreeMemoryTotalMB;
+    private double heapFreeMemoryTotalMB = -1;
 
-    private double heapMaxMemoryNowMB;
+    private double heapMaxMemoryNowMB = -1;
 
-    private double heapMaxMemoryTotalMB;
+    private double heapMaxMemoryTotalMB = -1;
 
-    private double heapMemoryUsagePercent;
+    private double heapMemoryUsagePercent = -1;
 
-    private String info;
+    private String info = "";
 
 }

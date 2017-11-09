@@ -10,41 +10,18 @@ public class MemoryInfoService {
     private static final double MB = 1024 * 1024.0;
     private static final String MB_STR = " MB";
 
-    private static final String OK = "OK";
-    private static final String NOK = "NOK";
-    private static final String ERROR = "ERROR";
-    private static final String WARNING = "WARNING";
+    private static final byte OK = 0;
+    private static final byte NOK = -1;
 
     MemoryInfo getMemoryInfo() {
         MemoryInfo info = new MemoryInfo();
         info.setStatus(OK);
-        info.setStatusInfo("");
 
-        try {
-            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.MaxFileDescriptorCount:	10000
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.OpenFileDescriptorCount:	164
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.CommittedVirtualMemorySize:	1811673088
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.FreePhysicalMemorySize:	133595136
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.FreeSwapSpaceSize:	6497226752
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.ProcessCpuTime:	7170530000000
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.TotalPhysicalMemorySize:	3426328576
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.TotalSwapSpaceSize:	6537863168
-//         05-Jul-12 10:08:00	java.lang:type=OperatingSystem.Name:	Linux
-            Object attribute = mBeanServer.getAttribute(new ObjectName("java.lang", "type", "OperatingSystem"), "TotalPhysicalMemorySize");
-            info.setTotalMemoryMB(toMB(Long.parseLong(attribute.toString())));
-
-            Object attributeCount = mBeanServer.getAttribute(new ObjectName("java.lang", "type", "OperatingSystem"), "OpenFileDescriptorCount");
-            info.setOpenFileDescriptorCount(Long.parseLong(attributeCount.toString()));
-        } catch (Exception e) {
-            info.setStatus(NOK);
-        }
+        info.setOperatingSystemInfo(createOperatingSystemInfo());
 
         info.setHeapMemoryInfo(createHeapMemoryInfo());
 
         info.setDirectMemoryInfo(createDirectMemoryInfo());
-
-        fillOperatingSystemInformation(info);
 
         fillStatus(info);
 
@@ -133,17 +110,51 @@ public class MemoryInfoService {
         return info;
     }
 
-    private void fillOperatingSystemInformation(MemoryInfo info) {
+    private OperatingSystemInfo createOperatingSystemInfo() {
+
+        OperatingSystemInfo info = new OperatingSystemInfo();
 
         int cores = Runtime.getRuntime().availableProcessors();
         info.setAvailableProcessorCores(cores);
 
-        StringBuilder output = new StringBuilder();
-        output.append("\n");
-        output.append("Available processors (cores): ").append(cores).append("\n");
-        output.append("\n\n");
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        Object attribute;
 
-        info.setInfo(output.toString());
+        try {
+            ObjectName os = new ObjectName("java.lang", "type", "OperatingSystem");
+
+            attribute = mBeanServer.getAttribute(os, "TotalPhysicalMemorySize");
+            double totalPhysicalMemoryMB = toMB(Long.parseLong(attribute.toString()));
+            info.setTotalPhysicalMemoryMB(totalPhysicalMemoryMB);
+
+            attribute = mBeanServer.getAttribute(os, "OpenFileDescriptorCount");
+            long openFileDescriptorCount = Long.parseLong(attribute.toString());
+            info.setOpenFileDescriptorCount(openFileDescriptorCount);
+
+            attribute = mBeanServer.getAttribute(os, "CommittedVirtualMemorySize");
+            double committedVirtualMemoryMB = toMB(Long.parseLong(attribute.toString()));
+            info.setCommittedVirtualMemoryMB(committedVirtualMemoryMB);
+
+            attribute = mBeanServer.getAttribute(os, "FreePhysicalMemorySize");
+            double freePhysicalMemoryMB = toMB(Long.parseLong(attribute.toString()));
+            info.setFreePhysicalMemoryMB(freePhysicalMemoryMB);
+
+            StringBuilder output = new StringBuilder();
+            output.append("\n");
+            output.append("Operating System Info").append("\n");
+            output.append("    Available processors (cores): ").append(cores).append("\n");
+            output.append("    Open file descriptors:    ").append(openFileDescriptorCount).append("\n");
+            output.append("    Total physical memory:    ").append(totalPhysicalMemoryMB).append(MB_STR + " (now)").append("\n");
+            output.append("    Committed virtual memory: ").append(committedVirtualMemoryMB).append(MB_STR + " (now)").append("\n");
+            output.append("    Free physical memory:     ").append(freePhysicalMemoryMB).append(MB_STR + " (now)").append("\n");
+            output.append("\n\n");
+            info.setInfo(output.toString());
+
+        } catch (Exception e) {
+            info.setInfo("Error: " + e);
+        }
+
+        return info;
     }
 
     private void fillStatus(MemoryInfo info) {
@@ -155,15 +166,15 @@ public class MemoryInfoService {
 
 
         if (Math.abs(maxMemory - totalMemory) < 1 && memUsage > 80) {
-            info.setStatus(WARNING);
+            info.setStatus(NOK);
             info.setStatusInfo("HEAP Memory is high!");
         }
 
-//      String directMemWarning = "";
-//      if (directMemUsage > 0.8) {
-//         directMemWarning = WARNING;
-//         // status = NOK;
-//      }
+        double directMemUsage = info.getDirectMemoryInfo().getDirectMemoryUsagePercent();
+        if (directMemUsage > 80) {
+            info.setStatus(NOK);
+            info.setStatusInfo("Direct Memory is high!");
+        }
 
     }
 
@@ -174,24 +185,5 @@ public class MemoryInfoService {
     private double toMB(long bytes) {
         return round(bytes / MB);
     }
-
-//   private static void createServerInfo() {
-//      ServerInfo info = new ServerInfo();
-//
-//      OperatingSystemMXBean operatingSystemMXBean = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
-//      ThreadMXBean threadMXBean = java.lang.management.ManagementFactory.getThreadMXBean();
-//      RuntimeMXBean runtimeMXBean = java.lang.management.ManagementFactory.getRuntimeMXBean();
-//
-//      int cores = Runtime.getRuntime().availableProcessors();
-//      double loadAvg = operatingSystemMXBean.getSystemLoadAverage();
-//
-//      int threadCount = threadMXBean.getThreadCount();
-//      long uptime = runtimeMXBean.getUptime();
-//
-//      info.setCpuCores( cores );
-//      info.setUptime( uptime );
-//      info.setThreadCount( threadCount );
-//      info.setLoadAvg( loadAvg );
-//   }
 
 }

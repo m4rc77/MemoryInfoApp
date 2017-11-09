@@ -5,17 +5,11 @@ import lombok.Data;
 @Data
 class MemoryInfo {
 
-    private String info;
+    private byte status = 0;
 
-    private String status;
+    private String statusInfo = "OK";
 
-    private String statusInfo;
-
-    private double totalMemoryMB;
-
-    private int availableProcessorCores;
-
-    private long openFileDescriptorCount;
+    private OperatingSystemInfo operatingSystemInfo;
 
     private HeapMemoryInfo heapMemoryInfo;
 

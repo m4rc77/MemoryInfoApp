@@ -5,16 +5,16 @@ import lombok.Data;
 @Data
 class DirectMemoryInfo {
 
-    private double directUsedMemoryMB;
+    private double directUsedMemoryMB = -1;
 
-    private double directMemoryCount;
+    private double directMemoryCount = -1;
 
-    private double directFreeMemoryNowMB;
+    private double directFreeMemoryNowMB = -1;
 
-    private double directMaxMemoryMB;
+    private double directMaxMemoryMB = -1;
 
-    private double directMemoryUsagePercent;
+    private double directMemoryUsagePercent = -1;
 
-    private String info;
+    private String info = "";
 
 }
