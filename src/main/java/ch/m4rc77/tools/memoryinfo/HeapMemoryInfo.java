@@ -1,70 +1,22 @@
 package ch.m4rc77.tools.memoryinfo;
 
-class HeapMemoryInfo
-{
-   private double heapUsedMemoryMB;
-   private double heapFreeMemoryNowMB;
-   private double heapFreeMemoryTotalMB;
-   private double heapMaxMemoryNowMB;
-   private double heapMaxMemoryTotalMB;
-   private double heapMemoryUsagePercent;
+import lombok.Data;
 
-   private String info;
+@Data
+class HeapMemoryInfo {
 
-   public double getHeapUsedMemoryMB (){
-      return heapUsedMemoryMB;
-   }
+    private double heapUsedMemoryMB;
 
-   public void setHeapUsedMemoryMB (double heapUsedMemoryMB) {
-      this.heapUsedMemoryMB = heapUsedMemoryMB;
-   }
+    private double heapFreeMemoryNowMB;
 
-   public double getHeapFreeMemoryNowMB () {
-      return heapFreeMemoryNowMB;
-   }
+    private double heapFreeMemoryTotalMB;
 
-   public void setHeapFreeMemoryNowMB (double heapFreeMemoryNowMB)
-   {
-      this.heapFreeMemoryNowMB = heapFreeMemoryNowMB;
-   }
+    private double heapMaxMemoryNowMB;
 
-   public double getHeapFreeMemoryTotalMB () {
-      return heapFreeMemoryTotalMB;
-   }
+    private double heapMaxMemoryTotalMB;
 
-   public void setHeapFreeMemoryTotalMB (double heapFreeMemoryTotalMB) {
-      this.heapFreeMemoryTotalMB = heapFreeMemoryTotalMB;
-   }
+    private double heapMemoryUsagePercent;
 
-   public double getHeapMaxMemoryNowMB () {
-      return heapMaxMemoryNowMB;
-   }
+    private String info;
 
-   public void setHeapMaxMemoryNowMB (double heapMaxMemoryNowMB) {
-      this.heapMaxMemoryNowMB = heapMaxMemoryNowMB;
-   }
-
-   public double getHeapMaxMemoryTotalMB () {
-      return heapMaxMemoryTotalMB;
-   }
-
-   public void setHeapMaxMemoryTotalMB (double heapMaxMemoryTotalMB) {
-      this.heapMaxMemoryTotalMB = heapMaxMemoryTotalMB;
-   }
-
-   public double getHeapMemoryUsagePercent () {
-      return heapMemoryUsagePercent;
-   }
-
-   public void setHeapMemoryUsagePercent (double heapMemoryUsagePercent) {
-      this.heapMemoryUsagePercent = heapMemoryUsagePercent;
-   }
-
-   public String getInfo () {
-      return info;
-   }
-
-   public void setInfo (String info) {
-      this.info = info;
-   }
 }

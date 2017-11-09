@@ -7,7 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 @Path("/")
-@Produces({ "application/json;charset=UTF-8" })
+@Produces({"application/json;charset=UTF-8"})
 public class MemoryInfoRESTService {
 
     @Inject

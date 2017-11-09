@@ -1,60 +1,20 @@
 package ch.m4rc77.tools.memoryinfo;
 
+import lombok.Data;
+
+@Data
 class DirectMemoryInfo {
 
-   private double directUsedMemoryMB;
-   private double directMemoryCount;
-   private double directFreeMemoryNowMB;
-   private double directMaxMemoryMB;
-   private double directMemoryUsagePercent;
+    private double directUsedMemoryMB;
 
-   private String info;
+    private double directMemoryCount;
 
-   public double getDirectUsedMemoryMB () {
-      return directUsedMemoryMB;
-   }
+    private double directFreeMemoryNowMB;
 
-   public void setDirectUsedMemoryMB (double directUsedMemoryMB) {
-      this.directUsedMemoryMB = directUsedMemoryMB;
-   }
+    private double directMaxMemoryMB;
 
-   public double getDirectMemoryCount () {
-      return directMemoryCount;
-   }
+    private double directMemoryUsagePercent;
 
-   public void setDirectMemoryCount (double directMemoryCount) {
-      this.directMemoryCount = directMemoryCount;
-   }
+    private String info;
 
-   public double getDirectFreeMemoryNowMB () {
-      return directFreeMemoryNowMB;
-   }
-
-   public void setDirectFreeMemoryNowMB (double directFreeMemoryNowMB) {
-      this.directFreeMemoryNowMB = directFreeMemoryNowMB;
-   }
-
-   public double getDirectMaxMemoryMB () {
-      return directMaxMemoryMB;
-   }
-
-   public void setDirectMaxMemoryMB (double directMaxMemoryMB) {
-      this.directMaxMemoryMB = directMaxMemoryMB;
-   }
-
-   public double getDirectMemoryUsagePercent () {
-      return directMemoryUsagePercent;
-   }
-
-   public void setDirectMemoryUsagePercent (double directMemoryUsagePercent) {
-      this.directMemoryUsagePercent = directMemoryUsagePercent;
-   }
-
-   public String getInfo () {
-      return info;
-   }
-
-   public void setInfo (String info) {
-      this.info = info;
-   }
 }
