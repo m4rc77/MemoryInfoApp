@@ -5,8 +5,6 @@ import lombok.Data;
 @Data
 class OperatingSystemInfo {
 
-    private String info = "";
-
     private int availableProcessorCores = -1;
 
     private double TotalPhysicalMemoryMB = -1;
@@ -16,5 +14,7 @@ class OperatingSystemInfo {
     private double committedVirtualMemoryMB = -1;
 
     private double freePhysicalMemoryMB = -1;
+
+    private String info = "";
 
 }

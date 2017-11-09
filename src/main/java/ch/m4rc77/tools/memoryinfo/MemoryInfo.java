@@ -15,4 +15,6 @@ class MemoryInfo {
 
     private DirectMemoryInfo directMemoryInfo;
 
+    private ThreadingInfo threadInfo;
+
 }

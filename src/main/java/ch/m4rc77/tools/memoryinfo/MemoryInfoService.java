@@ -4,6 +4,9 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemoryInfoService {
 
@@ -22,6 +25,8 @@ public class MemoryInfoService {
         info.setHeapMemoryInfo(createHeapMemoryInfo());
 
         info.setDirectMemoryInfo(createDirectMemoryInfo());
+
+        info.setThreadInfo(createThreadInfo());
 
         fillStatus(info);
 
@@ -52,18 +57,12 @@ public class MemoryInfoService {
 
         StringBuilder output = new StringBuilder();
         output.append("Java Heap Memory Size:").append("\n");
-        output.append("    Used Memory:      ").append(round(usedMemory / MB)).append(MB_STR).append("\n");
-        // Print free memory
-        output.append("    Free Memory:      ").append(round(freeMemory / MB)).append(MB_STR).append(" (now)").append("\n");
-        output.append("    Free Memory:      ").append(round(presumableFreeMemory / MB)).append(MB_STR).append(" (total)").append("\n");
-        // Print total available memory
-        output.append("    Max Memory:       ").append(round(totalMemory / MB)).append(MB_STR).append(" (now)").append("\n");
-        // Print Maximum available memory
-        output.append("    Max Memory:       ").append(round(maxMemory / MB)).append(MB_STR + " (total)").append("\n");
-        output.append("\n");
-        output.append("    Java Memory usage:     ").append(round(memUsage)).append("% (total) ").append("\n");
-        output.append("\n\n");
-
+        output.append("    Used Memory:       ").append(round(usedMemory / MB)).append(MB_STR).append("\n");
+        output.append("    Free Memory:       ").append(round(freeMemory / MB)).append(MB_STR).append(" (now)").append("\n");
+        output.append("    Free Memory:       ").append(round(presumableFreeMemory / MB)).append(MB_STR).append(" (total)").append("\n");
+        output.append("    Max Memory:        ").append(round(totalMemory / MB)).append(MB_STR).append(" (now)").append("\n");
+        output.append("    Max Memory:        ").append(round(maxMemory / MB)).append(MB_STR + " (total)").append("\n");
+        output.append("    Java Memory usage: ").append(round(memUsage)).append("% (total) ").append("\n");
         info.setInfo(output.toString());
 
         return info;
@@ -95,16 +94,13 @@ public class MemoryInfoService {
         info.setDirectMaxMemoryMB(toMB(maxDirectMemoryValue));
         info.setDirectMemoryUsagePercent(round(directMemUsage));
 
-        // Print direct memory information ...
         StringBuilder output = new StringBuilder();
         output.append("DirectMemory Size").append("\n");
         output.append("    Used DirectMemory:      ").append(round(reservedDirectMemoryValue / MB)).append(MB_STR + " (now)").append("\n");
         output.append("    DirectMemory Count:     ").append(countDirectMemoryValue).append(" (now)").append("\n");
         output.append("    Free DirectMemory:      ").append(round(freeDirectMemory / MB)).append(MB_STR + " (now)").append("\n");
         output.append("    Max DirectMemory:       ").append(round(maxDirectMemoryValue / MB)).append(MB_STR).append(" (now)").append("\n");
-        output.append("\n");
         output.append("    DirectMemory usage:     ").append(round(directMemUsage)).append("% (total) ").append("\n");
-        output.append("\n\n");
         info.setInfo(output.toString());
 
         return info;
@@ -140,19 +136,53 @@ public class MemoryInfoService {
             info.setFreePhysicalMemoryMB(freePhysicalMemoryMB);
 
             StringBuilder output = new StringBuilder();
-            output.append("\n");
             output.append("Operating System Info").append("\n");
-            output.append("    Available processors (cores): ").append(cores).append("\n");
-            output.append("    Open file descriptors:    ").append(openFileDescriptorCount).append("\n");
-            output.append("    Total physical memory:    ").append(totalPhysicalMemoryMB).append(MB_STR + " (now)").append("\n");
-            output.append("    Committed virtual memory: ").append(committedVirtualMemoryMB).append(MB_STR + " (now)").append("\n");
-            output.append("    Free physical memory:     ").append(freePhysicalMemoryMB).append(MB_STR + " (now)").append("\n");
-            output.append("\n\n");
+            output.append("    Available processors cores: ").append(cores).append("\n");
+            output.append("    Open file descriptors:      ").append(openFileDescriptorCount).append("\n");
+            output.append("    Total physical memory:      ").append(totalPhysicalMemoryMB).append(MB_STR).append("\n");
+            output.append("    Committed virtual memory:   ").append(committedVirtualMemoryMB).append(MB_STR).append("\n");
+            output.append("    Free physical memory:       ").append(freePhysicalMemoryMB).append(MB_STR).append("\n");
             info.setInfo(output.toString());
 
         } catch (Exception e) {
             info.setInfo("Error: " + e);
         }
+
+        return info;
+    }
+
+    private ThreadingInfo createThreadInfo() {
+        boolean ok = true;
+
+        ThreadingInfo info = new ThreadingInfo();
+
+        long peakThreadCount = ManagementFactory.getThreadMXBean().getPeakThreadCount();
+        info.setPeakThreadCount(peakThreadCount);
+
+        long threadCount = ManagementFactory.getThreadMXBean().getThreadCount();
+        info.setThreadCount(threadCount);
+
+        ThreadInfo[] infos = ManagementFactory.getThreadMXBean().dumpAllThreads(false, false);
+
+        Map<Thread.State, Long> tstat = new HashMap<>();
+        for (Thread.State state : Thread.State.values()) {
+            tstat.put(state, 0L);
+        }
+        for (ThreadInfo tinfo : infos) {
+            Thread.State state = tinfo.getThreadState();
+            tstat.put(state, tstat.get(state) + 1);
+        }
+        info.setThreadStates(tstat);
+
+        StringBuilder output = new StringBuilder();
+        output.append("Thread Info").append("\n");
+        output.append("    Peak thread count:    ").append(peakThreadCount).append("\n");
+        output.append("    Current thread count: ").append(threadCount).append("\n");
+        output.append("    Thread states:    \n");
+        for (Thread.State state : Thread.State.values()) {
+            output.append("                  ").append(String.format("%1$-15s", state + ": ")).append(tstat.get(state)).append("\n");
+        }
+        info.setInfo(output.toString());
 
         return info;
     }
@@ -174,6 +204,11 @@ public class MemoryInfoService {
         if (directMemUsage > 80) {
             info.setStatus(NOK);
             info.setStatusInfo("Direct Memory is high!");
+        }
+
+        if (info.getThreadInfo().getThreadStates().get(Thread.State.BLOCKED) > 0) {
+            info.setStatus(NOK);
+            info.setStatusInfo("Blocked Threads detected!");
         }
 
     }
