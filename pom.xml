@@ -79,4 +79,10 @@
         </plugins>
     </build>
 
+    <!-- URL to Git repository used by maven-release-plugin -->
+    <scm>
+        <developerConnection>scm:git:ssh://git@github.com:m4rc77/MemoryInfoApp.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
 </project>
