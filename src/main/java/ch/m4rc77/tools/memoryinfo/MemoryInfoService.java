@@ -13,8 +13,8 @@ public class MemoryInfoService {
     private static final double MB = 1024 * 1024.0;
     private static final String MB_STR = " MB";
 
-    private static final byte OK = 0;
-    private static final byte NOK = -1;
+    public static final byte OK = 0;
+    public static final byte NOK = -1;
 
     MemoryInfo getMemoryInfo() {
         MemoryInfo info = new MemoryInfo();
