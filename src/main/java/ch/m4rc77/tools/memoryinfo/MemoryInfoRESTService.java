@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Logger;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,10 +13,10 @@ import javax.ws.rs.core.Response;
 
 @Path("/")
 @Produces({"application/json;charset=UTF-8"})
+@Stateless
 public class MemoryInfoRESTService {
 
     private static final Logger LOG = Logger.getLogger(MemoryInfoRESTService.class.getName());
-
 
     @Inject
     private MemoryInfoService memoryInfoService;
@@ -25,7 +26,7 @@ public class MemoryInfoRESTService {
     public Response getMemoryInfoJSON() {
         try {
             if (memoryInfoService == null) {
-                LOG.warning("memoryInfoService not intialized ... is CDI working? " +
+                LOG.warning("memoryInfoService not initialized ... is CDI working? " +
                         "This may happen for example if deployed in keycloak. " +
                         "Create new instance of MemoryInfoService");
                 memoryInfoService = new MemoryInfoService();
